@@ -85,10 +85,11 @@ type Node struct {
 // attach methods onto the ID.
 type ID int64
 
+var n *Node
+
 // NewNode returns a new snowflake node that can be used to generate snowflake
 // IDs
-func NewNode(node int64) (*Node, error) {
-
+func NewNode(node int64) (error) {
 	// re-calc in case custom NodeBits or StepBits were set
 	nodeMax = -1 ^ (-1 << NodeBits)
 	nodeMask = nodeMax << StepBits
@@ -97,19 +98,20 @@ func NewNode(node int64) (*Node, error) {
 	nodeShift = StepBits
 	
 	if node < 0 || node > nodeMax {
-		return nil, errors.New("Node number must be between 0 and " + strconv.FormatInt(nodeMax, 10))
+		return errors.New("Node number must be between 0 and " + strconv.FormatInt(nodeMax, 10))
 	}
 
-	return &Node{
+	n = &Node{
 		time: 0,
 		node: node,
 		step: 0,
-	}, nil
+	}
+
+	return nil
 }
 
 // Generate creates and returns a unique snowflake ID
-func (n *Node) Generate() ID {
-
+func Generate() ID {
 	n.mu.Lock()
 
 	now := time.Now().UnixNano() / 1000000
